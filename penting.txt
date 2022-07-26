@@ -1,0 +1,7 @@
+Info menarik
+
+`Dari data yang kami dapatkan rata-rata siswa membutuhkan waktu 9 jam untuk menyelesaikan proyek submission ini`
+
+- pakai Hapi
+- pakai eslint, salah satu
+- pake nanoid
