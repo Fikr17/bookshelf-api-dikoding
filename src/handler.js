@@ -2,12 +2,19 @@ import { nanoid } from 'nanoid'
 import books from './books.js'
 
 const addBook = (req, res) => {
-  const ambilData = req.payload
-  const { name, year, author, summary, publisher, pageCount, readPage, reading } = ambilData
-  if (name == null) {
+  const { name, year, author, summary, publisher, pageCount, readPage, reading } = req.payload
+  if (name === undefined) {
     const response = res.response({
       status: 'fail',
       message: 'Gagal menambahkan buku. Mohon isi nama buku'
+    })
+    response.code(400)
+    return response
+  }
+  if (readPage > pageCount) {
+    const response = res.response({
+      status: 'fail',
+      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
     })
     response.code(400)
     return response
@@ -34,14 +41,6 @@ const addBook = (req, res) => {
   }
   books.push(tambahKeArray)
   const isSuccess = books.filter((book) => book.id === id).length > 0
-  if (readPage > pageCount) {
-    const response = res.response({
-      status: 'fail',
-      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount'
-    })
-    response.code(400)
-    return response
-  }
   if (isSuccess) {
     const response = res.response({
       status: 'success',
@@ -77,27 +76,25 @@ const getBook = (req, res) => {
   } else {
     let isiCode = ''
     let responObj = {}
+
     if (key.length <= 0) {
-      const d = []
-      books.forEach((e) => {
-        d.push({
-          id: e.id,
-          name: e.name,
-          publisher: e.publisher
-        })
-      })
       responObj = {
         status: 'success',
         data: {
-          books: d
+          books: books.map((e) => ({
+            id: e.id,
+            name: e.name,
+            publisher: e.publisher
+          }))
         }
       }
       isiCode = 200
     } else {
       let responObj2 = {}
       let isiCode2 = ''
+
       key.forEach((a) => {
-        if (a === 'name' || a === 'reading' || a === 'finished') { // disini
+        if (a === 'name' || a === 'reading' || a === 'finished') {
           let filteredBooks = books
 
           if (query.name !== undefined) {
@@ -111,6 +108,7 @@ const getBook = (req, res) => {
           if (query.finished !== undefined) {
             filteredBooks = filteredBooks.filter((book) => book.finished === !!Number(query.finished))
           }
+
           responObj2 = {
             status: 'success',
             data: {
@@ -130,9 +128,11 @@ const getBook = (req, res) => {
           isiCode2 = 404
         }
       })
+
       responObj = responObj2
       isiCode = isiCode2
     }
+
     const response = res.response(responObj)
     response.code(isiCode)
     return response
@@ -142,7 +142,6 @@ const getBook = (req, res) => {
 const getByIdBook = (req, res) => {
   const { bookId } = req.params
   const book = books.filter((b) => b.id === bookId)[0]
-  console.log(book)
   if (book !== undefined) {
     return {
       status: 'success',
@@ -173,7 +172,6 @@ const deleteBook = (req, res) => {
       message: 'Buku berhasil dihapus'
     })
     response.code(200)
-    console.log(books)
     return response
   }
 
