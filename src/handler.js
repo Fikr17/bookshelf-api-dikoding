@@ -60,7 +60,7 @@ const addBook = (req, res) => {
   return response
 }
 
-const getBook = (req, res) => {
+const getBook2 = (req, res) => {
   const query = req.query
   const key = Object.getOwnPropertyNames(query)
 
@@ -137,6 +137,39 @@ const getBook = (req, res) => {
     response.code(isiCode)
     return response
   }
+}
+
+const getBook = (req, res) => {
+  const { name, reading, finished } = req.query
+
+  let filteredBooks = books
+
+  if (name !== undefined) {
+    filteredBooks = filteredBooks.filter((book) => book
+      .name.toLowerCase().includes(name.toLowerCase()))
+  }
+
+  if (reading !== undefined) {
+    filteredBooks = filteredBooks.filter((book) => book.reading === !!Number(reading))
+  }
+
+  if (finished !== undefined) {
+    filteredBooks = filteredBooks.filter((book) => book.finished === !!Number(finished))
+  }
+
+  const response = res.response({
+    status: 'success',
+    data: {
+      books: filteredBooks.map((book) => ({
+        id: book.id,
+        name: book.name,
+        publisher: book.publisher
+      }))
+    }
+  })
+  response.code(200)
+
+  return response
 }
 
 const getByIdBook = (req, res) => {
